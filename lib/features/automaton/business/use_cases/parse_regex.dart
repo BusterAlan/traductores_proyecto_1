@@ -6,7 +6,6 @@ import "../../data/models/params/parse_regex_params.dart";
 import "../compiler/ast/base_node.dart";
 import "../compiler/lexer/regex_lexer.dart";
 import "../compiler/parser/regex_parser.dart";
-import "../entities/regex_expression_entity.dart";
 
 /// Parsea una expresión regular cruda y la convierte a notación postfix
 /// lista para Thompson's Construction.
