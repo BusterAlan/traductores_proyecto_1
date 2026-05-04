@@ -8,6 +8,7 @@ import "package:traductores_proyecto_1/features/automaton/business/entities/rege
 import "package:traductores_proyecto_1/features/automaton/business/use_cases/build_nfa.dart";
 import "package:traductores_proyecto_1/features/automaton/business/use_cases/convert_to_dfa.dart";
 import "package:traductores_proyecto_1/features/automaton/data/models/params/build_nfa_params.dart";
+import "package:traductores_proyecto_1/features/automaton/data/models/params/convert_to_dfa_params.dart";
 
 // ── Pipeline completo regex → NFA → DFA ──────────────────────────────────────
 
@@ -34,7 +35,9 @@ AutomatonGraphEntity buildDfa(String raw) {
 
   return ConvertToDfa()
       .call(
-        params: nfa,
+        params: ConvertToDfaParams(
+          graph: nfa,
+        ),
       )
       .getOrElse((f) => throw Exception(f.message));
 }
@@ -78,8 +81,11 @@ void main() {
       for (final state in dfa.dfaStates) {
         final symbols = state.transitions.map((t) => t.symbol).toList();
         final unique = symbols.toSet();
-        expect(symbols.length, unique.length,
-            reason: "Estado ${state.id} tiene transiciones duplicadas");
+        expect(
+          symbols.length,
+          unique.length,
+          reason: "Estado ${state.id} tiene transiciones duplicadas",
+        );
       }
     });
   });

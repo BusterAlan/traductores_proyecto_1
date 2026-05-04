@@ -2,6 +2,7 @@ import "package:flutter_common_classes/constants/classes/use_case.dart";
 import "package:fpdart/fpdart.dart";
 
 import "../../../../core/errors/languaje_failures.dart";
+import "../../data/models/params/convert_to_dfa_params.dart";
 import "../entities/automaton_graph_entity.dart";
 import "../entities/dfa_state_entity.dart";
 import "../entities/nfa_state_entity.dart";
@@ -12,16 +13,16 @@ import "../entities/transition_entity.dart";
 /// Cada estado del DFA representa un CONJUNTO de estados del NFA.
 /// El algoritmo expande iterativamente los subconjuntos accesibles
 /// hasta que no queden subconjuntos nuevos por procesar.
-class ConvertToDfa extends UseCase<AutomatonGraphEntity, AutomatonGraphEntity> {
+class ConvertToDfa extends UseCase<AutomatonGraphEntity, ConvertToDfaParams> {
   /// Constructor
   ConvertToDfa();
 
   @override
   Either<DfaConversionFailure, AutomatonGraphEntity> call({
-    required AutomatonGraphEntity params,
+    required ConvertToDfaParams params,
   }) {
     try {
-      if (!params.isNfa) {
+      if (!params.graph.isNfa) {
         return left(
           DfaConversionFailure(
             "El grafo recibido no es un NFA.",
@@ -30,10 +31,11 @@ class ConvertToDfa extends UseCase<AutomatonGraphEntity, AutomatonGraphEntity> {
       }
 
       // Índice rápido: id → NfaStateEntity
-      final nfaIndex = {for (final s in params.nfaStates) s.id: s};
+      final nfaIndex = {for (final s in params.graph.nfaStates) s.id: s};
 
       // ── Paso 1: ε-cerradura del estado inicial ──────────────────────────
-      final initialClosure = _epsilonClosure({params.initialStateId}, nfaIndex);
+      final initialClosure =
+          _epsilonClosure({params.graph.initialStateId}, nfaIndex);
 
       // ── Paso 2: construcción iterativa de subconjuntos ──────────────────
       // Mapeamos cada subconjunto (Set<String>) a su ID de estado DFA.
@@ -58,7 +60,7 @@ class ConvertToDfa extends UseCase<AutomatonGraphEntity, AutomatonGraphEntity> {
         final transitions = <TransitionEntity>[];
 
         // Para cada símbolo del alfabeto, calculamos el subconjunto destino
-        for (final symbol in params.alphabet) {
+        for (final symbol in params.graph.alphabet) {
           // move(subset, symbol) — estados NFA alcanzables con symbol
           final moved = _move(subset, symbol, nfaIndex);
           if (moved.isEmpty) {
@@ -106,7 +108,7 @@ class ConvertToDfa extends UseCase<AutomatonGraphEntity, AutomatonGraphEntity> {
         AutomatonGraphEntity.dfa(
           initialStateId: initialId,
           acceptingStateIds: acceptingIds,
-          alphabet: params.alphabet,
+          alphabet: params.graph.alphabet,
           dfaStates: dfaStates.values.toList(),
         ),
       );
