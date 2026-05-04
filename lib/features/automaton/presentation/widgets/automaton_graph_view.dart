@@ -113,7 +113,8 @@ class _AutomatonGraphViewState extends State<AutomatonGraphView> {
 
     return GraphView<String, String>(
       key: ValueKey(
-          '${widget.showDfa}_${graph.allStateIds.length}_${edgeIds.length}'),
+        "${widget.showDfa}_${graph.allStateIds.length}_${edgeIds.length}",
+      ),
       rebuildAllChildrenOnWidgetUpdate: true,
       viewportController: _viewportController,
       nodeBuilder: (context, nodeId) {
