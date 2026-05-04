@@ -49,9 +49,11 @@ class AutomatonCubit extends Cubit<StateMixin<AutomatonResultEntity>> {
     try {
       ast = RegexParser(tokens).parse();
     } on FormatException catch (e) {
-      emit(StateMixin.failure(
-        InvalidRegexFailure(e.message),
-      ));
+      emit(
+        StateMixin.failure(
+          InvalidRegexFailure(e.message),
+        ),
+      );
       return;
     }
 

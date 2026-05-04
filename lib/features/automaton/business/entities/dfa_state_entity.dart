@@ -39,7 +39,7 @@ class DfaStateEntity extends Equatable {
     return matches.isEmpty ? null : matches.first.toStateId;
   }
 
-  /// TODO: Move into a mapper with copyWith available
+  /// Copy with method helper
   DfaStateEntity copyWith({
     String? id,
     bool? isAccepting,

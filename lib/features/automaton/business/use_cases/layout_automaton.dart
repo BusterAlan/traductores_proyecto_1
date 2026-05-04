@@ -1,3 +1,4 @@
+import "package:flutter/material.dart" show debugPrint;
 import "package:flutter/painting.dart";
 import "package:flutter_common_classes/constants/classes/use_case.dart";
 import "package:fpdart/fpdart.dart";
@@ -85,6 +86,13 @@ class LayoutAutomaton
       final currentLevel = levels[current]!;
 
       for (final t in getTransitions(current)) {
+        // Solo procesar transiciones a estados válidos
+        if (!allStateIds.contains(t.toStateId)) {
+          debugPrint(
+            "⚠️ Layout: Skipping transition to invalid state: ${t.toStateId}",
+          );
+          continue;
+        }
         if (!levels.containsKey(t.toStateId)) {
           levels[t.toStateId] = currentLevel + 1;
           queue.add(t.toStateId);

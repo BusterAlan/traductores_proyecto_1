@@ -42,7 +42,7 @@ class NfaStateEntity extends Equatable {
       .map((t) => t.toStateId)
       .toList();
 
-  /// TODO: Move into a mapper of models/dtos
+  /// Copy with method helper
   NfaStateEntity copyWith({
     String? id,
     bool? isAccepting,
