@@ -1,32 +1,33 @@
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_common_classes/cubit_states/state_mixin.dart";
 
-import "../../../../core/errors/languaje_failures.dart";
-import "../../business/compiler/ast/base_node.dart";
-import "../../business/compiler/lexer/regex_lexer.dart";
-import "../../business/compiler/parser/regex_parser.dart";
 import "../../business/entities/automaton_result_entity.dart";
 import "../../business/entities/regex_expression_entity.dart";
+import "../../business/use_cases/analyze_regex.dart";
 import "../../business/use_cases/build_nfa.dart";
 import "../../business/use_cases/convert_to_dfa.dart";
 import "../../business/use_cases/layout_automaton.dart";
 import "../../data/models/params/build_nfa_params.dart";
 import "../../data/models/params/convert_to_dfa_params.dart";
 import "../../data/models/params/layout_automaton_params.dart";
+import "../../data/models/params/parse_regex_params.dart";
 
 /// Cubit que orquesta el pipeline completo:
 /// Regex string → NFA → DFA → Offsets de layout
 class AutomatonCubit extends Cubit<StateMixin<AutomatonResultEntity>> {
   /// Cubit que orquesta el pipeline completo.
   AutomatonCubit({
+    AnalyzeRegex? analyzeRegex,
     BuildNfa? buildNfa,
     ConvertToDfa? convertToDfa,
     LayoutAutomaton? layoutAutomaton,
-  })  : _buildNfa = buildNfa ?? BuildNfa(),
+  })  : _analyzeRegex = analyzeRegex ?? AnalyzeRegex(),
+        _buildNfa = buildNfa ?? BuildNfa(),
         _convertToDfa = convertToDfa ?? ConvertToDfa(),
         _layoutAutomaton = layoutAutomaton ?? LayoutAutomaton(),
         super(StateMixin.initial());
 
+  final AnalyzeRegex _analyzeRegex;
   final BuildNfa _buildNfa;
   final ConvertToDfa _convertToDfa;
   final LayoutAutomaton _layoutAutomaton;
@@ -42,33 +43,24 @@ class AutomatonCubit extends Cubit<StateMixin<AutomatonResultEntity>> {
 
     emit(StateMixin.loading());
 
-    // ── 1. Lexer + Parser → AST ──────────────────────────────────────────────
-    final tokens = RegexLexer().tokenize(rawRegex);
+    final analysisResult = _analyzeRegex.call(
+      params: ParseRegexParams(rawRegex: rawRegex),
+    );
 
-    final RegexNode ast;
-    try {
-      ast = RegexParser(tokens).parse();
-    } on FormatException catch (e) {
-      emit(
-        StateMixin.failure(
-          InvalidRegexFailure(e.message),
-        ),
-      );
+    if (analysisResult.isLeft()) {
+      emit(StateMixin.failure(analysisResult.getLeft().toNullable()!));
       return;
     }
 
-    // Inferimos el alfabeto de la regex cruda
-    final alphabet = rawRegex
-        .split("")
-        .where(
-          (c) => !"()|*+?".contains(c),
-        )
-        .toSet();
+    final analysis = analysisResult.getRight().toNullable()!;
     final expression = RegexExpressionEntity(
       raw: rawRegex,
-      postfix: "",
-      alphabet: alphabet,
+      postfix: analysis.postfix,
+      alphabet: analysis.alphabet,
+      semanticAnalysis: analysis,
     );
+
+    final ast = analysis.ast;
 
     // ── 2. Thompson's Construction → NFA ─────────────────────────────────────
     final nfaResult = _buildNfa.call(

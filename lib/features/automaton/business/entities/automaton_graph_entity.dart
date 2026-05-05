@@ -5,10 +5,11 @@ import "nfa_state_entity.dart";
 
 /// Tipo de autómata representado.
 enum AutomatonType {
-  /// Non-deterministic finite automaton 
+  /// Non-deterministic finite automaton
   nfa,
+
   /// Deterministic finite automaton
-  dfa 
+  dfa
 }
 
 /// Grafo de autómata listo para ser consumido por el generador DOT
@@ -53,7 +54,7 @@ class AutomatonGraphEntity extends Equatable {
   final Set<String> alphabet;
 
   // Solo uno de estos dos estará poblado:
-  
+
   /// Nfa states value
   final List<NfaStateEntity> nfaStates;
 

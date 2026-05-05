@@ -48,18 +48,18 @@ class StarNode extends RegexNode {
 class PlusNode extends RegexNode {
   /// Nodo de cerradura positiva — una o más repeticiones.
   PlusNode(this.node);
- 
+
   /// Subexpresión sobre la que se aplica.
   final RegexNode node;
 }
- 
+
 /// Nodo opcional — cero o una ocurrencia.
 /// Equivalente a `(a|ε)`.
 /// Ejemplo: `a?` → QuestionNode(CharNode(a))
 class QuestionNode extends RegexNode {
   /// Nodo opcional — cero o una ocurrencia.
   QuestionNode(this.node);
- 
+
   /// Subexpresión sobre la que se aplica.
   final RegexNode node;
 }

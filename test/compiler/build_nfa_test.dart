@@ -15,10 +15,11 @@ class _NfaResult {
 
   NfaStateEntity stateById(String id) => states.firstWhere((s) => s.id == id);
 
-  bool hasTransition(String from, String? symbol, String to) =>
-      states.any((s) =>
-          s.id == from &&
-          s.transitions.any((t) => t.symbol == symbol && t.toStateId == to),);
+  bool hasTransition(String from, String? symbol, String to) => states.any(
+        (s) =>
+            s.id == from &&
+            s.transitions.any((t) => t.symbol == symbol && t.toStateId == to),
+      );
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -34,13 +35,17 @@ void main() {
     );
 
     check("tiene exactamente un estado de aceptación", "a", (nfa) {
-      expect(nfa.accepting.length == 1,
-          "esperado 1 accepting, got ${nfa.accepting.length}",);
+      expect(
+        nfa.accepting.length == 1,
+        "esperado 1 accepting, got ${nfa.accepting.length}",
+      );
     });
 
     check("el estado inicial NO es de aceptación en 'a'", "a", (nfa) {
-      expect(!nfa.accepting.contains(nfa.initial),
-          "inicial no debe ser accepting",);
+      expect(
+        !nfa.accepting.contains(nfa.initial),
+        "inicial no debe ser accepting",
+      );
     });
   });
 
@@ -54,8 +59,10 @@ void main() {
     });
 
     check("'a' genera exactamente 2 estados", "a", (nfa) {
-      expect(nfa.states.length == 2,
-          "esperado 2 estados, got ${nfa.states.length}",);
+      expect(
+        nfa.states.length == 2,
+        "esperado 2 estados, got ${nfa.states.length}",
+      );
     });
   });
 
@@ -88,15 +95,19 @@ void main() {
           .transitions
           .where((t) => t.isEpsilon)
           .toList();
-      expect(epsilons.length == 2,
-          "esperado 2 ε desde inicial, got ${epsilons.length}",);
+      expect(
+        epsilons.length == 2,
+        "esperado 2 ε desde inicial, got ${epsilons.length}",
+      );
     });
 
     check("'a|b' — estado de aceptación no tiene transiciones salientes", "a|b",
         (nfa) {
       final end = nfa.stateById(nfa.accepting.first);
-      expect(end.transitions.isEmpty,
-          "el estado final no debe tener transiciones",);
+      expect(
+        end.transitions.isEmpty,
+        "el estado final no debe tener transiciones",
+      );
     });
   });
 
@@ -111,8 +122,10 @@ void main() {
 
     check("'a*' — hay loop: el estado post-'a' regresa con ε", "a*", (nfa) {
       // Debe existir algún estado que tenga ε de vuelta hacia el inicio del fragmento A
-      final loopExists = nfa.states.any((s) => s.transitions
-          .any((t) => t.isEpsilon && t.toStateId != nfa.accepting.first),);
+      final loopExists = nfa.states.any(
+        (s) => s.transitions
+            .any((t) => t.isEpsilon && t.toStateId != nfa.accepting.first),
+      );
       expect(loopExists, "no encontré ε de loop");
     });
   });
@@ -144,8 +157,10 @@ void main() {
           .toList();
       // El inicial solo debe tener 2 ε: hacia A.start y hacia end (bypass)
       // No debe tener loop de vuelta
-      expect(initEpsilons.length == 2,
-          "question: inicial debe tener exactamente 2 ε",);
+      expect(
+        initEpsilons.length == 2,
+        "question: inicial debe tener exactamente 2 ε",
+      );
     });
   });
 
@@ -155,8 +170,10 @@ void main() {
     });
 
     check("tiene exactamente un estado de aceptación", "(a|b)*abb", (nfa) {
-      expect(nfa.accepting.length == 1,
-          "got ${nfa.accepting.length} accepting states",);
+      expect(
+        nfa.accepting.length == 1,
+        "got ${nfa.accepting.length} accepting states",
+      );
     });
 
     check("tiene más de 10 estados (complejidad esperada)", "(a|b)*abb", (nfa) {
@@ -211,7 +228,10 @@ _NfaResult? buildNfa(String raw) {
         return null;
       },
       (graph) => _NfaResult(
-          graph.initialStateId, graph.acceptingStateIds, graph.nfaStates,),
+        graph.initialStateId,
+        graph.acceptingStateIds,
+        graph.nfaStates,
+      ),
     );
   } catch (e) {
     print("    Excepción: $e");

@@ -4,7 +4,7 @@ import "package:flutter_common_classes/constants/classes/params.dart";
 class AutomatonParams extends Params {
   /// Parameters used to make the Automaton request.
   AutomatonParams();
-  
+
   /*
   The params class is responsible for holding the data that will be used to make the request to the API. 
   It is also responsible for converting the data into a format that the API can use. 

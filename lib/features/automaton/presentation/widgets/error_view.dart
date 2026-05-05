@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 
-/// Error view to shown if in the load of Cubit has any 
+/// Error view to shown if in the load of Cubit has any
 /// error to display to the final user
 class ErrorView extends StatelessWidget {
-  /// Error view to shown if in the load of Cubit has any 
+  /// Error view to shown if in the load of Cubit has any
   /// error to display to the final user
   const ErrorView({required this.failure, super.key});
 

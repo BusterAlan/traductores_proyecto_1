@@ -4,6 +4,7 @@ import "token_type.dart";
 class Token {
   /// Token class
   const Token(this.type, this.value);
+
   /// Token type value
   final TokenType type;
 

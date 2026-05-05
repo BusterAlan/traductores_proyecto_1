@@ -17,7 +17,7 @@ import 'package:traductores_proyecto_1/features/automaton/presentation/pages/aut
 /// [_i1.AutomatonPage]
 class AutomatonRoute extends _i2.PageRouteInfo<void> {
   const AutomatonRoute({List<_i2.PageRouteInfo>? children})
-    : super(AutomatonRoute.name, initialChildren: children);
+      : super(AutomatonRoute.name, initialChildren: children);
 
   static const String name = 'AutomatonRoute';
 

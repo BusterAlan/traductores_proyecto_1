@@ -10,7 +10,7 @@ class AppRouter extends RootStackRouter {
   List<AutoRoute> get routes => [
         AutoRoute(
           page: AutomatonRoute.page,
-          path: RoutesNames.initial, 
+          path: RoutesNames.initial,
         ),
       ];
 }

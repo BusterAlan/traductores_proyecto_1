@@ -4,7 +4,7 @@ import "package:flutter_common_classes/constants/classes/params.dart";
 class ParseRegexParams extends Params {
   /// Parse regex params
   const ParseRegexParams({required this.rawRegex});
-  
+
   /// Raw regex
   final String rawRegex;
 }

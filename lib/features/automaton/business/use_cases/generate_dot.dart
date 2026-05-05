@@ -34,10 +34,10 @@ class GenerateDot extends UseCase<String, GenerateDotParams> {
       final graph = params.graph;
       final buffer = StringBuffer()
 
-      // Cabecera DOT
-      ..writeln("digraph Automaton {")
-      ..writeln("  rankdir=LR;")
-      ..writeln("  node [shape=circle];");
+        // Cabecera DOT
+        ..writeln("digraph Automaton {")
+        ..writeln("  rankdir=LR;")
+        ..writeln("  node [shape=circle];");
 
       // Definir nodos
       if (graph.isNfa) {
@@ -57,10 +57,11 @@ class GenerateDot extends UseCase<String, GenerateDotParams> {
       }
 
       // Nodo invisible para punta de flecha inicial
-      buffer..writeln('  START [shape=none, label=""];')
+      buffer
+        ..writeln('  START [shape=none, label=""];')
 
-      // Transición inicial
-      ..writeln("  START -> ${graph.initialStateId};");
+        // Transición inicial
+        ..writeln("  START -> ${graph.initialStateId};");
 
       // Definir transiciones
       if (graph.isNfa) {

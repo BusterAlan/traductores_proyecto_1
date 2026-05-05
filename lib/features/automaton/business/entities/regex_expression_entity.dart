@@ -1,5 +1,7 @@
 import "package:equatable/equatable.dart";
 
+import "../compiler/semantic/regex_semantic_analysis.dart";
+
 /// Representa una expresión regular ya validada y procesada.
 ///
 /// [raw] es el string original del usuario, ej: `(a|b)*abb`
@@ -21,6 +23,7 @@ class RegexExpressionEntity extends Equatable {
     required this.raw,
     required this.postfix,
     required this.alphabet,
+    this.semanticAnalysis,
   });
 
   /// Raw user expression
@@ -33,10 +36,16 @@ class RegexExpressionEntity extends Equatable {
   /// excluyendo operadores (|, *, +, ?, .) y paréntesis.
   final Set<String> alphabet;
 
+  /// Información semántica derivada del análisis del AST.
+  ///
+  /// Se utiliza para evitar volver a parsear la misma expresión
+  /// cuando se construye el NFA o se generan artefactos posteriores.
+  final RegexSemanticAnalysis? semanticAnalysis;
+
   @override
   List<Object?> get props => [raw, postfix, alphabet];
 
   @override
   String toString() =>
-      'RegexExpression(raw: "$raw", postfix: "$postfix", alphabet: $alphabet)';
+      'RegexExpression(raw: "$raw", postfix: "$postfix", alphabet: $alphabet, semanticAnalysis: $semanticAnalysis)';
 }

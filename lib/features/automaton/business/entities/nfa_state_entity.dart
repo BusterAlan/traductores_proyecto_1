@@ -37,10 +37,8 @@ class NfaStateEntity extends Equatable {
       .toList();
 
   /// Devuelve los estados destino alcanzables por ε desde este estado.
-  List<String> get epsilonTargets => transitions
-      .where((t) => t.isEpsilon)
-      .map((t) => t.toStateId)
-      .toList();
+  List<String> get epsilonTargets =>
+      transitions.where((t) => t.isEpsilon).map((t) => t.toStateId).toList();
 
   /// Copy with method helper
   NfaStateEntity copyWith({

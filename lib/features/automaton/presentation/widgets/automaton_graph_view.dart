@@ -25,7 +25,6 @@ class AutomatonGraphView extends StatefulWidget {
 
 class _AutomatonGraphViewState extends State<AutomatonGraphView>
     with AutomatonGraphMixin<AutomatonGraphView> {
-
   @override
   Widget build(BuildContext context) {
     final graph = widget.showDfa ? widget.result.dfa : widget.result.nfa;
