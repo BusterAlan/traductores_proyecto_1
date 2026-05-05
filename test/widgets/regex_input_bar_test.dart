@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:traductores_proyecto_1/features/automaton/presentation/cubits/automaton_cubit.dart";
-import "package:traductores_proyecto_1/features/automaton/presentation/widgets/regex_input_bar.dart";
+import "package:traductores_proyecto_1/features/automaton/presentation/widgets/components/regex_input_bar.dart";
 
 void main() {
   group("RegexInputBar Auto-Close Parentheses", () {

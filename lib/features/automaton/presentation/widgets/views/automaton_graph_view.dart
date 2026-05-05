@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:interactive_graph_view/interactive_graph_view.dart";
 
-import "../../business/entities/automaton_result_entity.dart";
-import "mixins/mixin_view.dart";
+import "../../../business/entities/automaton_result_entity.dart";
+import "../mixins/mixin_view.dart";
 
 /// View where [GraphView] is located to use it
 class AutomatonGraphView extends StatefulWidget {

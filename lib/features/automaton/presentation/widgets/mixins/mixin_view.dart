@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:interactive_graph_view/interactive_graph_view.dart";
 
 import "../../../business/entities/automaton_graph_entity.dart";
-import "../automaton_graph_view.dart";
+import "../views/automaton_graph_view.dart";
 
 /// Mixin para compartir lógica común del GraphViewportController
 mixin AutomatonGraphMixin<T extends StatefulWidget> on State<T> {

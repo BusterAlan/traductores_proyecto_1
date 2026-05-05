@@ -6,12 +6,12 @@ import "package:flutter_common_classes/cubit_states/state_mixin.dart";
 import "package:path/path.dart" as path;
 import "package:path_provider/path_provider.dart";
 
-import "../../business/entities/automaton_result_entity.dart";
-import "../cubits/automaton_cubit.dart";
+import "../../../business/entities/automaton_result_entity.dart";
+import "../../cubits/automaton_cubit.dart";
 import "automaton_graph_view.dart";
 import "error_view.dart";
 import "placeholder_view.dart";
-import "regex_input_bar.dart";
+import "../components/regex_input_bar.dart";
 
 /// Automaton view
 class AutomatonView extends StatefulWidget {

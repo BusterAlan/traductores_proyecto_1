@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
-import "../cubits/automaton_cubit.dart";
+import "../../cubits/automaton_cubit.dart";
 
 /// Regular expression input field with auto-closing parentheses support
 class RegexInputBar extends StatefulWidget {

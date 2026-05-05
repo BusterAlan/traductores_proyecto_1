@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../cubits/automaton_cubit.dart";
-import "../widgets/automaton_view.dart";
+import "../widgets/views/automaton_view.dart";
 
 /// Página principal del visualizador de autómatas.
 @RoutePage()
