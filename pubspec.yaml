@@ -23,6 +23,8 @@ dependencies:
     git: 
       url: https://github.com/BusterAlan/flutter_common_classes.git
   interactive_graph_view: ^0.3.0+1
+  path: ^1.8.3
+  path_provider: ^2.0.0
 
 dev_dependencies:
   build_runner: ^2.4.11

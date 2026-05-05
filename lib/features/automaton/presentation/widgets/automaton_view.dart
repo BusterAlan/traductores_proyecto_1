@@ -1,7 +1,10 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_common_classes/cubit_states/state_mixin.dart";
+import "package:path/path.dart" as path;
+import "package:path_provider/path_provider.dart";
 
 import "../../business/entities/automaton_result_entity.dart";
 import "../cubits/automaton_cubit.dart";
@@ -50,8 +53,8 @@ class _AutomatonViewState extends State<AutomatonView> {
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.download_outlined),
-                  tooltip: "Copiar DOT",
-                  onPressed: () => _copyDot(context, state.data!),
+                  tooltip: "Exportar DOT a Descargas",
+                  onPressed: () => _exportDotToDownloads(context, state.data!),
                 ),
                 const SizedBox(width: 8),
               ],
@@ -94,7 +97,7 @@ class _AutomatonViewState extends State<AutomatonView> {
           ),
       };
 
-  Future<void> _copyDot(
+  Future<void> _exportDotToDownloads(
     BuildContext context,
     AutomatonResultEntity data,
   ) async {
@@ -113,13 +116,37 @@ class _AutomatonViewState extends State<AutomatonView> {
     }
 
     final dot = result.getRight().toNullable()!;
-    await Clipboard.setData(ClipboardData(text: dot));
+    Directory? directory;
+
+    try {
+      directory = await getDownloadsDirectory();
+    } catch (_) {
+      directory = null;
+    }
+
+    directory ??= await getApplicationDocumentsDirectory();
+
+    final fileName =
+        "automaton_${_showDfa ? 'dfa' : 'nfa'}_${DateTime.now().millisecondsSinceEpoch}.dot";
+    final file = File(path.join(directory.path, fileName));
+
+    try {
+      await file.writeAsString(dot);
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text("No se pudo guardar el archivo: $e"),
+        ),
+      );
+      return;
+    }
+
     if (!mounted) {
       return;
     }
 
     messenger.showSnackBar(
-      const SnackBar(content: Text("DOT copiado al portapapeles")),
+      SnackBar(content: Text("DOT guardado en: ${file.path}")),
     );
   }
 }
