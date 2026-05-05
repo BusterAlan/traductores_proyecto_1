@@ -18,7 +18,7 @@ void main() {
 
     testWidgets(
       "Widget renderiza correctamente con TextField, botón Generar y Clear",
-      (WidgetTester tester) async {
+      (tester) async {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
@@ -40,7 +40,7 @@ void main() {
 
     testWidgets(
       "Escribir texto actualiza el controller correctamente",
-      (WidgetTester tester) async {
+      (tester) async {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
@@ -66,15 +66,15 @@ void main() {
       final controller = TextEditingController();
 
       // Simular el comportamiento del handler directamente
-      final onTextChangeHandler = (String newText) {
+      void onTextChangeHandler(String newText) {
         // Simular la lógica: usuario tipea (
         if (newText == "(") {
           // El handler debería insertar )
-          controller.text = "()";
-          controller.selection =
-              TextSelection.fromPosition(TextPosition(offset: 1));
+          controller..text = "()"
+          ..selection =
+              TextSelection.fromPosition(const TextPosition(offset: 1));
         }
-      };
+      }
 
       // Invocar el handler
       onTextChangeHandler("(");
@@ -84,17 +84,17 @@ void main() {
     });
 
     test("Auto-close handler borra ) cuando se borra (", () {
-      final controller = TextEditingController(text: "ab");
-      controller.selection = const TextSelection.collapsed(offset: 1);
+      final controller = TextEditingController(text: "ab")
+      ..selection = const TextSelection.collapsed(offset: 1);
 
       // Simular el comportamiento cuando el usuario borra el (
       final oldText = controller.text;
-      final newText = "b"; // Usuario borra (
+      const newText = "b"; // Usuario borra (
 
       // Si hubiera sido () y borra (, también debería borrar )
       if (oldText == "()" && newText == ")") {
-        controller.text = "";
-        controller.selection = const TextSelection.collapsed(offset: 0);
+        controller..text = ""
+        ..selection = const TextSelection.collapsed(offset: 0);
       }
 
       expect(controller.text, isNotEmpty);
@@ -102,7 +102,7 @@ void main() {
 
     testWidgets(
       "Botón Clear limpia el controller y resetea el cubit",
-      (WidgetTester tester) async {
+      (tester) async {
         controller.text = "(a|b)*";
 
         await tester.pumpWidget(

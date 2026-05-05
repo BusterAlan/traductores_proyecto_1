@@ -6,10 +6,17 @@ import "../cubits/automaton_cubit.dart";
 /// Regular expression input field with auto-closing parentheses support
 class RegexInputBar extends StatefulWidget {
   /// Regular expression input field with auto-closing parentheses support
-  const RegexInputBar({required this.controller, super.key});
+  const RegexInputBar({
+    required this.controller,
+    this.errorText,
+    super.key,
+  });
 
   /// Text editing controller
   final TextEditingController controller;
+
+  /// Error text shown below the input when the regex fails validation.
+  final String? errorText;
 
   @override
   State<RegexInputBar> createState() => _RegexInputBarState();
@@ -73,11 +80,12 @@ class _RegexInputBarState extends State<RegexInputBar> {
               child: TextField(
                 controller: _controller,
                 onChanged: _onTextChange,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Expresión regular",
                   hintText: "ej: (a|b)*abb",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.code),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.code),
+                  errorText: widget.errorText,
                 ),
                 onSubmitted: (value) =>
                     context.read<AutomatonCubit>().buildAutomaton(value),

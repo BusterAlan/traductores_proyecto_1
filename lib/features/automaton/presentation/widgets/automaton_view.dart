@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_common_classes/cubit_states/state_mixin.dart";
 
@@ -47,12 +48,23 @@ class _AutomatonViewState extends State<AutomatonView> {
                   onChanged: (_) => setState(() => _showDfa = !_showDfa),
                 ),
                 const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.download_outlined),
+                  tooltip: "Copiar DOT",
+                  onPressed: () => _copyDot(context, state.data!),
+                ),
+                const SizedBox(width: 8),
               ],
             ],
           ),
           body: Column(
             children: [
-              RegexInputBar(controller: _controller),
+              RegexInputBar(
+                controller: _controller,
+                errorText: state.status == WidgetStatus.failure
+                    ? state.failure?.message
+                    : null,
+              ),
               Expanded(child: _buildBody(context, state)),
             ],
           ),
@@ -81,4 +93,33 @@ class _AutomatonViewState extends State<AutomatonView> {
             message: "El autómata resultante está vacío",
           ),
       };
+
+  Future<void> _copyDot(
+    BuildContext context,
+    AutomatonResultEntity data,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final graph = _showDfa ? data.dfa : data.nfa;
+    final result = context.read<AutomatonCubit>().generateDot(graph);
+
+    if (result.isLeft()) {
+      final failure = result.getLeft().toNullable()!;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text("Error exportando DOT: ${failure.message}"),
+        ),
+      );
+      return;
+    }
+
+    final dot = result.getRight().toNullable()!;
+    await Clipboard.setData(ClipboardData(text: dot));
+    if (!mounted) {
+      return;
+    }
+
+    messenger.showSnackBar(
+      const SnackBar(content: Text("DOT copiado al portapapeles")),
+    );
+  }
 }

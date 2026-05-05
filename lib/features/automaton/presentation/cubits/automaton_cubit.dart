@@ -1,14 +1,19 @@
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_common_classes/cubit_states/state_mixin.dart";
+import "package:flutter_common_classes/errors/failure.dart";
+import "package:fpdart/fpdart.dart";
 
+import "../../business/entities/automaton_graph_entity.dart";
 import "../../business/entities/automaton_result_entity.dart";
 import "../../business/entities/regex_expression_entity.dart";
 import "../../business/use_cases/analyze_regex.dart";
 import "../../business/use_cases/build_nfa.dart";
 import "../../business/use_cases/convert_to_dfa.dart";
+import "../../business/use_cases/generate_dot.dart";
 import "../../business/use_cases/layout_automaton.dart";
 import "../../data/models/params/build_nfa_params.dart";
 import "../../data/models/params/convert_to_dfa_params.dart";
+import "../../data/models/params/generate_dot_params.dart";
 import "../../data/models/params/layout_automaton_params.dart";
 import "../../data/models/params/parse_regex_params.dart";
 
@@ -21,16 +26,19 @@ class AutomatonCubit extends Cubit<StateMixin<AutomatonResultEntity>> {
     BuildNfa? buildNfa,
     ConvertToDfa? convertToDfa,
     LayoutAutomaton? layoutAutomaton,
+    GenerateDot? generateDot,
   })  : _analyzeRegex = analyzeRegex ?? AnalyzeRegex(),
         _buildNfa = buildNfa ?? BuildNfa(),
         _convertToDfa = convertToDfa ?? ConvertToDfa(),
         _layoutAutomaton = layoutAutomaton ?? LayoutAutomaton(),
+        _generateDot = generateDot ?? GenerateDot(),
         super(StateMixin.initial());
 
   final AnalyzeRegex _analyzeRegex;
   final BuildNfa _buildNfa;
   final ConvertToDfa _convertToDfa;
   final LayoutAutomaton _layoutAutomaton;
+  final GenerateDot _generateDot;
 
   /// Ejecuta el pipeline completo a partir de [rawRegex].
   ///
@@ -121,4 +129,14 @@ class AutomatonCubit extends Cubit<StateMixin<AutomatonResultEntity>> {
 
   /// Resetea el estado al inicial.
   void reset() => emit(StateMixin.initial());
+
+  /// Genera DOT para el autómata dado.
+  Either<Failure, String> generateDot(
+    AutomatonGraphEntity graph,
+  ) {
+    final result = _generateDot.call(
+      params: GenerateDotParams(graph: graph),
+    );
+    return result.fold(left, right);
+  }
 }
