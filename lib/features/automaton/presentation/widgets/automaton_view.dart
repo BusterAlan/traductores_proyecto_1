@@ -116,15 +116,33 @@ class _AutomatonViewState extends State<AutomatonView> {
     }
 
     final dot = result.getRight().toNullable()!;
-    Directory? directory;
 
-    try {
-      directory = await getDownloadsDirectory();
-    } catch (_) {
-      directory = null;
+    // Intentar Descargas primero, luego fallback a Documents
+    Directory directory;
+    final downloadsDir = await getDownloadsDirectory();
+
+    if (downloadsDir != null) {
+      directory = downloadsDir;
+    } else {
+      // Fallback: crear carpeta "Automaton Exports" en Documents
+      final docsDir = await getApplicationDocumentsDirectory();
+      directory = Directory(path.join(docsDir.path, "Automaton Exports"));
+
+      if (!await directory.exists()) {
+        try {
+          await directory.create(recursive: true);
+        } catch (e) {
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                "No se pudo crear la carpeta de exportación: $e",
+              ),
+            ),
+          );
+          return;
+        }
+      }
     }
-
-    directory ??= await getApplicationDocumentsDirectory();
 
     final fileName =
         "automaton_${_showDfa ? 'dfa' : 'nfa'}_${DateTime.now().millisecondsSinceEpoch}.dot";
@@ -141,12 +159,12 @@ class _AutomatonViewState extends State<AutomatonView> {
       return;
     }
 
-    if (!mounted) {
+    if (!context.mounted) {
       return;
     }
 
     messenger.showSnackBar(
-      SnackBar(content: Text("DOT guardado en: ${file.path}")),
+      const SnackBar(content: Text("DOT guardado")),
     );
   }
 }
