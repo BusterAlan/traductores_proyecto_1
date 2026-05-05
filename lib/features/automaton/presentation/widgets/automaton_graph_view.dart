@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:interactive_graph_view/interactive_graph_view.dart";
 
-import "../../business/entities/automaton_graph_entity.dart";
 import "../../business/entities/automaton_result_entity.dart";
+import "mixins/mixin_view.dart";
 
 /// View where [GraphView] is located to use it
 class AutomatonGraphView extends StatefulWidget {
@@ -23,91 +23,15 @@ class AutomatonGraphView extends StatefulWidget {
   State<AutomatonGraphView> createState() => _AutomatonGraphViewState();
 }
 
-class _AutomatonGraphViewState extends State<AutomatonGraphView> {
-  late GraphViewportController<String, String> _viewportController;
-
-  @override
-  void initState() {
-    super.initState();
-    _initController();
-  }
-
-  @override
-  void didUpdateWidget(AutomatonGraphView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Si cambió el grafo (NFA ↔ DFA o nueva regex), reiniciamos el controller
-    if (oldWidget.result != widget.result ||
-        oldWidget.showDfa != widget.showDfa) {
-      // Forzar reconstrucción completa del controller
-      _viewportController = GraphViewportController(
-        initialNodeIds: const [], // Empezar vacío
-        initialEdgeIds: const [],
-      );
-      _initController(); // Inicializar con los nuevos datos
-    }
-  }
-
-  void _initController() {
-    final graph = widget.showDfa ? widget.result.dfa : widget.result.nfa;
-    final nodeIds = graph.allStateIds;
-    final edgeIds = _buildEdgeIds(graph);
-
-    _viewportController = GraphViewportController(
-      initialNodeIds: nodeIds,
-      initialEdgeIds: edgeIds.keys,
-    );
-  }
-
-  /// Construye IDs únicos para cada transición del grafo.
-  /// Formato: "fromId__symbol__toId" (doble guión para evitar colisiones).
-  Map<String, (String from, String symbol, String to)> _buildEdgeIds(
-    AutomatonGraphEntity graph,
-  ) {
-    final edges = <String, (String, String, String)>{};
-    final validStateIds = graph.allStateIds;
-
-    if (graph.isNfa) {
-      for (final state in graph.nfaStates) {
-        for (final t in state.transitions) {
-          // Validar que ambos estados existen
-          if (!validStateIds.contains(t.fromStateId) ||
-              !validStateIds.contains(t.toStateId)) {
-            debugPrint(
-              "⚠️ Skipping invalid NFA transition: ${t.fromStateId} -> ${t.toStateId}",
-            );
-            continue;
-          }
-          final label = t.isEpsilon ? "ε" : t.symbol!;
-          final id = "${t.fromStateId}__${label}__${t.toStateId}";
-          edges[id] = (t.fromStateId, label, t.toStateId);
-        }
-      }
-    } else {
-      for (final state in graph.dfaStates) {
-        for (final t in state.transitions) {
-          // Validar que ambos estados existen
-          if (!validStateIds.contains(t.fromStateId) ||
-              !validStateIds.contains(t.toStateId)) {
-            debugPrint(
-              "⚠️ Skipping invalid DFA transition: ${t.fromStateId} -> ${t.toStateId}",
-            );
-            continue;
-          }
-          final id = "${t.fromStateId}__${t.symbol!}__${t.toStateId}";
-          edges[id] = (t.fromStateId, t.symbol!, t.toStateId);
-        }
-      }
-    }
-
-    return edges;
-  }
+class _AutomatonGraphViewState extends State<AutomatonGraphView>
+    with AutomatonGraphMixin<AutomatonGraphView> {
 
   @override
   Widget build(BuildContext context) {
     final graph = widget.showDfa ? widget.result.dfa : widget.result.nfa;
     final offsets =
         widget.showDfa ? widget.result.dfaOffsets : widget.result.nfaOffsets;
-    final edgeIds = _buildEdgeIds(graph);
+    final edgeIds = buildEdgeIds(graph);
 
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -116,7 +40,7 @@ class _AutomatonGraphViewState extends State<AutomatonGraphView> {
         "${widget.showDfa}_${graph.allStateIds.length}_${edgeIds.length}",
       ),
       rebuildAllChildrenOnWidgetUpdate: true,
-      viewportController: _viewportController,
+      viewportController: viewportController,
       nodeBuilder: (context, nodeId) {
         final isAccepting = graph.acceptingStateIds.contains(nodeId);
         final isInitial = nodeId == graph.initialStateId;
