@@ -1,6 +1,7 @@
 import "package:flutter_common_classes/errors/failure.dart";
 import "package:fpdart/fpdart.dart";
 
+import "../../../../core/errors/error_handler.dart";
 import "../../business/entities/automaton_graph_entity.dart";
 import "../../business/entities/regex_expression_entity.dart";
 import "../../business/repositories/automaton_repository.dart";
@@ -20,11 +21,10 @@ class AutomatonRepositoryImpl implements AutomatonRepository {
     required this.localDataSource,
     ConvertToDfa? convertToDfa,
     GenerateDot? generateDot,
-  })  :
-        _convertToDfa = convertToDfa ?? ConvertToDfa(),
+  })  : _convertToDfa = convertToDfa ?? ConvertToDfa(),
         _generateDot = generateDot ?? GenerateDot();
 
-  /// Data source local (SharedPreferences, SQLite, etc.)
+  /// Data source local
   final AutomatonLocalDataSource localDataSource;
 
   /// Use case para construcción de subconjuntos
@@ -34,97 +34,64 @@ class AutomatonRepositoryImpl implements AutomatonRepository {
   final GenerateDot _generateDot;
 
   @override
-  Either<Failure, RegexExpressionEntity> parseRegex(String rawRegex) {
-    // Parsing simple: inferir alfabeto desde la regex cruda
-    final alphabet = rawRegex
-        .split("")
-        .where(
-          (c) => !r"()|*+?\".contains(c),
-        )
-        .toSet();
+  Either<Failure, RegexExpressionEntity> parseRegex(
+    String rawRegex,
+  ) =>
+      ErrorHandler.handleCacheCall<RegexExpressionEntity>(
+        () {
+          // Parsing simple: inferir alfabeto desde la regex cruda
+          final alphabet = rawRegex
+              .split("")
+              .where(
+                (c) => !r"()|*+?\".contains(c),
+              )
+              .toSet();
 
-    try {
-      return right(
-        RegexExpressionEntity(
-          raw: rawRegex,
-          postfix: "", // TODO: implementar conversión a postfix si es necesario
-          alphabet: alphabet,
-        ),
+          return RegexExpressionEntity(
+            raw: rawRegex,
+            postfix:
+                "", // TODO: implementar conversión a postfix si es necesario
+            alphabet: alphabet,
+          );
+        },
       );
-    } catch (e) {
-      return left(
-        AppFailure(
-          title: "Error parseando regex",
-          message: e.toString(),),
-      );
-    }
-  }
 
+  // Aquí deberíamos crear el AST desde expression.raw
+  // Por ahora, delegamos al use case si tenemos el AST
+  // Este es un punto donde se requiere sincronización con el parser
+  // TODO: Requiere el AST desde RegexExpressionEntity
   @override
   Either<Failure, AutomatonGraphEntity> buildNfa(
     RegexExpressionEntity expression,
-  ) {
-    // Aquí deberíamos crear el AST desde expression.raw
-    // Por ahora, delegamos al use case si tenemos el AST
-    // Este es un punto donde se requiere sincronización con el parser
-    try {
-      // TODO: Requiere el AST desde RegexExpressionEntity
-      return left(
+  ) =>
+      left(
         AppFailure(
           title: "Método buildNfa requiere AST completo",
-          message:
-              "Use AutomatonCubit directamente",
+          message: "Use AutomatonCubit directamente",
         ),
       );
-    } catch (e) {
-      return left(
-        AppFailure(
-          title: "Error construyendo NFA",
-          message: e.toString(),
-        ),
-      );
-    }
-  }
 
   @override
   Either<Failure, AutomatonGraphEntity> convertToDfa(
     AutomatonGraphEntity nfa,
   ) {
-    try {
-      final result = _convertToDfa.call(
-        params: ConvertToDfaParams(graph: nfa),
-      );
-      return result.fold(
-        left,
-        right,
-      );
-    } catch (e) {
-      return left(
-        AppFailure(
-          title: "Error convirtiendo a DFA",
-          message: e.toString(),
-        ),
-      );
-    }
+    final result = _convertToDfa.call(
+      params: ConvertToDfaParams(graph: nfa),
+    );
+    return result.fold(
+      left,
+      right,
+    );
   }
 
   @override
   Either<Failure, String> generateDot(AutomatonGraphEntity graph) {
-    try {
-      final result = _generateDot.call(
-        params: GenerateDotParams(graph: graph),
-      );
-      return result.fold(
-        left,
-        right,
-      );
-    } catch (e) {
-      return left(
-        AppFailure(
-          title: "Error generando DOT",
-          message: e.toString(),
-        ),
-      );
-    }
+    final result = _generateDot.call(
+      params: GenerateDotParams(graph: graph),
+    );
+    return result.fold(
+      left,
+      right,
+    );
   }
 }

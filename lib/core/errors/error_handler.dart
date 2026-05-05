@@ -9,11 +9,11 @@ class ErrorHandler {
   ///
   /// It receives a [function] that is the cache call to be executed.
   /// Returns an [Either] with the [Failure] or the [T] value.
-  static Future<Either<Failure, T>> handleCacheCall<T>(
-    Future<T> Function() function,
-  ) async {
+  static Either<Failure, T> handleCacheCall<T>(
+    T Function() function,
+  ) {
     try {
-      return Right(await function());
+      return Right(function());
     } on CacheException catch (exception) {
       return Left(AppFailure.cacheException(exception));
     } catch (e) {
