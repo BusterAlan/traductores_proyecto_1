@@ -5,17 +5,18 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_common_classes/cubit_states/state_mixin.dart";
 import "package:path/path.dart" as path;
 import "package:path_provider/path_provider.dart";
+import "package:share_plus/share_plus.dart";
 
 import "../../../business/entities/automaton_result_entity.dart";
 import "../../cubits/automaton_cubit.dart";
+import "../components/regex_input_bar.dart";
 import "automaton_graph_view.dart";
 import "error_view.dart";
 import "placeholder_view.dart";
-import "../components/regex_input_bar.dart";
 
-/// Automaton view
+/// Automaton view widget that contains the scaffold properties
 class AutomatonView extends StatefulWidget {
-  /// Automaton view
+  /// Automaton view widget that contains the scaffold properties
   const AutomatonView({super.key});
 
   @override
@@ -24,8 +25,6 @@ class AutomatonView extends StatefulWidget {
 
 class _AutomatonViewState extends State<AutomatonView> {
   final _controller = TextEditingController();
-
-  // Controla qué grafo se muestra: NFA o DFA
   bool _showDfa = true;
 
   @override
@@ -52,9 +51,9 @@ class _AutomatonViewState extends State<AutomatonView> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.download_outlined),
-                  tooltip: "Exportar DOT a Descargas",
-                  onPressed: () => _exportDotToDownloads(context, state.data!),
+                  icon: const Icon(Icons.share_outlined),
+                  tooltip: "Compartir DOT",
+                  onPressed: () => _shareDot(context, state.data!),
                 ),
                 const SizedBox(width: 8),
               ],
@@ -97,7 +96,9 @@ class _AutomatonViewState extends State<AutomatonView> {
           ),
       };
 
-  Future<void> _exportDotToDownloads(
+  /// Escribe el DOT en un archivo temporal y lo comparte via share sheet.
+  /// Funciona en Android físico, iOS y desktop sin permisos especiales.
+  Future<void> _shareDot(
     BuildContext context,
     AutomatonResultEntity data,
   ) async {
@@ -108,53 +109,24 @@ class _AutomatonViewState extends State<AutomatonView> {
     if (result.isLeft()) {
       final failure = result.getLeft().toNullable()!;
       messenger.showSnackBar(
-        SnackBar(
-          content: Text("Error exportando DOT: ${failure.message}"),
-        ),
+        SnackBar(content: Text("Error generando DOT: ${failure.message}")),
       );
       return;
     }
 
     final dot = result.getRight().toNullable()!;
 
-    // Intentar Descargas primero, luego fallback a Documents
-    Directory directory;
-    final downloadsDir = await getDownloadsDirectory();
-
-    if (downloadsDir != null) {
-      directory = downloadsDir;
-    } else {
-      // Fallback: crear carpeta "Automaton Exports" en Documents
-      final docsDir = await getApplicationDocumentsDirectory();
-      directory = Directory(path.join(docsDir.path, "Automaton Exports"));
-
-      if (!await directory.exists()) {
-        try {
-          await directory.create(recursive: true);
-        } catch (e) {
-          messenger.showSnackBar(
-            SnackBar(
-              content: Text(
-                "No se pudo crear la carpeta de exportación: $e",
-              ),
-            ),
-          );
-          return;
-        }
-      }
-    }
-
+    // Usar el directorio temporal — siempre disponible, no requiere permisos
+    final tempDir = await getTemporaryDirectory();
     final fileName =
         "automaton_${_showDfa ? 'dfa' : 'nfa'}_${DateTime.now().millisecondsSinceEpoch}.dot";
-    final file = File(path.join(directory.path, fileName));
+    final file = File(path.join(tempDir.path, fileName));
 
     try {
       await file.writeAsString(dot);
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(
-          content: Text("No se pudo guardar el archivo: $e"),
-        ),
+        SnackBar(content: Text("No se pudo crear el archivo: $e")),
       );
       return;
     }
@@ -163,8 +135,11 @@ class _AutomatonViewState extends State<AutomatonView> {
       return;
     }
 
-    messenger.showSnackBar(
-      const SnackBar(content: Text("DOT guardado")),
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path, mimeType: "text/plain")],
+        subject: "Autómata ${_showDfa ? 'DFA' : 'NFA'} — $fileName",
+      ),
     );
   }
 }
