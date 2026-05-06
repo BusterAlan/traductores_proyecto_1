@@ -40,7 +40,7 @@ flutter pub get
 3. Si modificas las rutas o generas código nuevo, ejecuta:
 
 ```bash
-flutter pub run build_runner build --delete-conflicting-outputs
+dart pub run build_runner build --delete-conflicting-outputs
 ```
 
 4. Ejecuta la app:
@@ -63,7 +63,7 @@ flutter run
 flutter run
 flutter test
 flutter pub get
-flutter pub run build_runner build --delete-conflicting-outputs
+dart pub run build_runner build --delete-conflicting-outputs
 ```
 
 ## Configuration
@@ -171,7 +171,3 @@ flutter test
 2. Ejecuta `flutter pub get` y `flutter test` antes de enviar cambios.
 3. Si agregas o modificas rutas generadas, ejecuta `flutter pub run build_runner build --delete-conflicting-outputs`.
 4. Envía cambios mediante pull request con descripción clara y evidencia de pruebas.
-
-## License
-
-No se ha especificado una licencia en este repositorio. Añade un archivo `LICENSE` si deseas exponer la licencia oficial del proyecto.
